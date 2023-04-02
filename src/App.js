@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import moment from "moment";
+import Header from "./components/Header";
+import AddClocks from "./components/AddClocks";
+import ClocksList from "./components/ClocksList";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+	constructor() {
+		super();
+
+		this.state = {
+			clocksList: [],
+			timezoneUTC: null
+		};
+	}
+
+	loadTime = () => {
+		setInterval(() => {
+			this.setState({
+				timezoneUTC: moment().utc()
+			});
+		}, 1000);
+	};
+
+	componentDidMount() {
+		this.loadTime();
+	}
+
+	handleAdd = clocks => {
+		this.setState(prevState => ({
+			clocksList: [...prevState.clocksList, clocks]
+		}));
+	};
+
+	handleDelete = id => {
+		this.setState(prevState => ({
+			clocksList: prevState.clocksList.filter(clocks => clocks.id !== id)
+		}));
+	};
+
+	componentWillUnmount() {
+		clearInterval(this.loadTime);
+	}
+
+	render() {
+		return (
+			<div className="App">
+				<Header />
+				<div>
+					<AddClocks handleAdd={this.handleAdd} />
+					<ClocksList
+						clocksList={this.state.clocksList}
+						timezoneUTC={this.state.timezoneUTC}
+						handleDelete={this.handleDelete}
+					/>
+				</div>
+			</div>
+		);
+	}
 }
-
 export default App;
